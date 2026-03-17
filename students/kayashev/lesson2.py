@@ -35,9 +35,9 @@ class LogisticRegression:
 
     def loss(self, x: np.ndarray, y: np.ndarray) -> float:
         predict = self.predict(x)
-        return -np.sum(y * np.log(predict) + (-y + 1) * np.log(-predict + 1))
+        return -np.sum(y * np.log(predict) + (-y + 1) * np.log(-predict + 1))/y.size
 
-    def metric(self, x: np.ndarray, y: np.ndarray) -> float:
+    def metric(self, x: np.ndarray, y: np.ndarray, type: str = "accuracy") -> float:
         alpha = 0.5
         predict = self.predict(x)
         predictgrtthan = predict > alpha
@@ -46,7 +46,7 @@ class LogisticRegression:
 
     def grad(self, x, y) -> tuple[np.ndarray, np.ndarray]:
         predict = self.predict(x)
-        return (y / predict - (1 - y) / (1 - predict)) @ x, np.sum(y / predict - (1 - y) / (1 - predict))
+        return -x.T @ (y - predict) / y.size,-np.mean(y - predict)
 
 
 class Exercise:
@@ -67,8 +67,20 @@ class Exercise:
         return LogisticRegression(num_features, rng or np.random.default_rng())
 
     @staticmethod
-    def fit(model: LinearRegression | LogisticRegression, x: np.ndarray, y: np.ndarray, lr: float, n_iter: int) -> None:
-        for _ in range(n_iter):
+    def fit(
+        model: LinearRegression | LogisticRegression,
+        x: np.ndarray,
+        y: np.ndarray,
+        lr: float,
+        n_epoch: int,
+        batch_size: int | None = None,
+    ) -> None:
+        for _ in range(n_epoch):
             gradweight, gradbias = model.grad(x, y)
             model.weights -= lr * gradweight
             model.bias -= lr * gradbias
+
+    @staticmethod
+    def get_iris_hyperparameters() -> dict[str, int | float]:
+        # Для 25 эпох, по метрике AUROC
+        return {"lr": 0.42, "batch_size": 42}
