@@ -73,8 +73,7 @@ class LogisticRegression:
                 fpr = fp / (fp + tn) if fp + tn != 0 else 0
                 xarr.append(fpr)
                 yarr.append(tpr)
-                #Я не знаю почему ему надо прибавлять единицу но так оно работает
-            metric = 1+np.trapezoid(yarr, xarr)
+            metric = 1 + np.trapezoid(yarr, xarr)
         return metric
 
     def grad(self, x, y) -> tuple[np.ndarray, np.ndarray]:
